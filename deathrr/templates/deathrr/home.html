@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+    <h1>Deceased Reports</h1>
+        <div>
+            <label for="filter-start-date">Start Date:</label>
+            <input type="date" id="filter-start-date" value="{{ start_date|date:'Y-m-d' }}" name="filter_start_date" hx-trigger="load, blur" hx-get="{% url 'deathrr:filter_reports' %}" hx-target="#reports_list">
+            <label class="ms-3" for="filter-end-date">End Date:</label>
+            <input type="date" id="filter-end-date" value="{{ end_date|date:'Y-m-d' }}" name="filter_end_date" hx-trigger=" load, blur" hx-get="{% url 'deathrr:filter_reports' %}" hx-target="#reports_list">
+            <label class="ms-3" for="special_filter">Special Filter</label>
+            <select id="special_filter" value="{{ selected_special_filter }}" name="special_filter" hx-trigger="change, load" hx-get="{% url 'deathrr:filter_reports' %}" hx-target="#reports_list">
+                {% for filter in special_filters %}
+                    <option value="{{ filter }}" {% if filter == selected_special_filter %}selected{% endif %}>{{ filter }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="mt-3" for="filter_primary">Primary COD?</label>
+            <input type="checkbox" id="filter_primary" name="filter_primary" hx-trigger="load, change" hx-get="{% url 'deathrr:filter_reports' %}" hx-target="#reports_list" {% if filter_primary %} checked {% endif %}>
+        </div>
+        <div class="mt-4">
+            <label for="filter_state">Filter by State:</label>
+            <select id="filter_state" value="{{ filter_state }}" name="filter_state" hx-trigger="change, load" hx-get="{% url 'deathrr:filter_reports' %}" hx-target="#reports_list">
+                {% for state in states %}
+                    <option value="{{ state }}" {% if state == selected_state %}selected{% endif %}>{{ state }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mt-4 mb-4">
+            <label for="filter_text" >Filter by ICD Code or ICD Code Description:</label>
+            <input id="filter_text" value="{{ filter_text }}" name="filter_text" hx-trigger="blur, load" hx-get="{% url 'deathrr:filter_reports' %}" hx-target="#reports_list">
+        </div>
+        <div id="reports_list" style="height:500px"></div>
+        <div class="d-flex align-items-center justify-content-end">
+            <a href="{% url 'deathrr:create_deceased_report' %}"><button class="btn btn-secondary mr-5" style="margin-right:80px" type="button">Create Report</button></a>
+        </div>
+<script>
+    function triggerSecond() {
+            const stateFilter = document.getElementById('state_filter');
+            htmx.trigger(filterTextBox, 'change');
+        }
+    function triggerThird() {
+            const stateFilter = document.getElementById('filter_code');
+            htmx.trigger(filterTextBox, 'keyup');
+        }
+    function handleSpecialFilterChange() {
+        var specialFilter = document.getElementById("special_filter").value;
+        var startDate = document.getElementById("filter-start-date");
+        var endDate = document.getElementById("filter-end-date");
+        var primaryCOD = document.getElementById("filter_primary");
+        var state = document.getElementById("filter_state");
+        var text = document.getElementById("filter_text");
+        if(specialFilter !== "-----") {
+            if(specialFilter !== "All Reports in Date Range") {
+                startDate.disabled = true;
+                endDate.disabled = true;
+            }
+            else {
+                startDate.disabled = false;
+                endDate.disabled = false;
+            }
+            primaryCOD.disabled = true;
+            state.disabled = true;
+            text.disabled = true;
+        }
+        else {
+            startDate.disabled = false;
+            endDate.disabled = false;
+            primaryCOD.disabled = false;
+            state.disabled = false;
+            text.disabled = false;
+        }
+
+    }
+    document.getElementById('special_filter').addEventListener("change", handleSpecialFilterChange);
+    window.onload = handleSpecialFilterChange;
+</script>
+{% endblock %}

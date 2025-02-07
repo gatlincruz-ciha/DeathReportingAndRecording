@@ -1,0 +1,38 @@
+<div id="rep_tab">
+    <p class="text-center">Reports found: {{reports_size}}</p>
+    <div style = "height:400px; overflow-y:scroll;">
+<table class="table table-hover ml-4 mr-4 mt-4"  style="background-color:white;" id="reports_table">
+    <thead>
+    <tr><th scope="col"># of Entries</th>
+      <th scope="col">Description</th>
+      <th scope="col">ICD10</th>
+    </tr>
+    </thead>
+    <tbody>
+  {% if reports_size > 0 %}
+  {% for report in reports %}
+    <tr onclick="addCodeToSearch(this)" style="cursor: pointer;">
+        <th scope="row">{{report.count}}</th>
+        <td>{{report.description}}</td>
+        <td>{{report.code}}</td>
+    </tr>
+  {% endfor%}
+  {% else %}
+  <tr>
+    <td>No data for selected dates</td>
+  </tr>
+  {% endif %}
+</table>
+        </div>
+    {% if reports_size > 0 %}
+        <a href="{% url 'deathrr:download_count_reports' %}"><button class="btn btn-secondary mr-5" style="margin-right:80px" type="button">Download</button></a>
+    {% endif %}
+    <script>
+        function addCodeToSearch(row) {
+            const rowCode = row.getElementsByTagName('td')[1].innerText
+            const filterTextBox = document.getElementById('filter_text');
+            filterTextBox.value = rowCode;
+            htmx.trigger(filterTextBox, 'blur');
+        }
+    </script>
+</div>

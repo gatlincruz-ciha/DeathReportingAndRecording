@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}
+View Report
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="display-4 mb-4 text-center" style="margin-bottom:10px;">View Report Information</h1>
+        <div class="row" >
+            <div class="col-md-6">
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Name: </label></div>
+                    {% if report.name %}
+                    <div class="col-md-2"><input value="{{report.name}}" disabled></div>
+                    {% else %}
+                    <div class="col-md-2"><input value="------" disabled></div>
+                    {% endif %}
+                </div>
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Chart Number: </label></div>
+                    {% if report.chart_num %}
+                    <div class="col-md-2"><input value="{{report.chart_num}}" disabled></div>
+                    {% else %}
+                    <div class="col-md-2"><input value="------" disabled></div>
+                    {% endif %}
+                </div>
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Date of Birth: </label></div>
+                    <div class="col-md-2"><input value="{{report.dob}}" disabled></div>
+                </div>
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>State Where died: </label></div>
+                    <div class="col-md-2"><input value="{{report.state_where_died}}" disabled></div>
+                </div>
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Death Certificate Number: </label></div>
+                    {% if report.death_cert_num %}
+                    <div class="col-md-2"><input value="{{report.death_cert_num}}" disabled></div>
+                    {% else %}
+                    <div class="col-md-2"><input value="------" disabled></div>
+                    {% endif %}
+                </div>
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Date of Death: </label></div>
+                    <div class="col-md-2"><input value="{{report.dod}}" disabled></div>
+                </div>
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Place of Death: </label></div>
+                    <div class="col-md-2"><input value="{{report.place_of_death}}" disabled></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Race: </label></div>
+                    <div class="col-md-2"><input value="{{report.race}}" disabled></div>
+                </div>
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Was Autopsy Performed: </label></div>
+                    {% if report.autopsy_performed %}
+                    <div class="col-md-2"><input value="Yes" disabled></div>
+                    {% else %}
+                    <div class="col-md-2"><input value="No" disabled></div>
+                    {% endif %}
+                </div>
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Manner of Death: </label></div>
+                    <div class="col-md-2"><input value="{{report.manner_of_death}}" disabled></div>
+                </div>
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Was Death by Work Injury: </label></div>
+                    {% if report.death_by_work_injury %}
+                    <div class="col-md-2"><input value="Yes" disabled></div>
+                    {% else %}
+                    <div class="col-md-2"><input value="No" disabled></div>
+                    {% endif %}
+                </div>
+                {% if report.death_by_work_injury %}
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Place of Injury: </label></div>
+                    <div class="col-md-2"><input value="{{report.place_of_injury}}" disabled></div>
+                </div>
+                {% endif %}
+                <div class="row" style="padding-bottom:25px">
+                    <div class="col-md-3"><label>Method of Verification: </label></div>
+                    <div class="col-md-2"><input value="{{report.method_of_verification}}" disabled></div>
+                </div>
+            </div>
+        </div>
+        <table class="table ml-4 mr-4 mt-4">
+            <thead>
+                <tr>
+                    <th scope="col">Code</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Is Primary</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if codes_size > 0 %}
+                {% for code in codes %}
+                <tr>
+                    <th scope="row">{{code.code}}</th>
+                    <td>{{code.description}}</td>
+                    <td>{{code.type}}</td>
+                    {% if code.is_primary %}
+                    <td>Yes</td>
+                    {% else %}
+                    <td>No</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <th scope="row">No codes have been added</th>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        <div class="text-center mt-5">
+            <form method="GET" action="{% url 'deathrr:home' %}"><button class="btn btn-primary" type="submit">Finish</button></form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+Update Report
+{% endblock %}
+{% block content %}
+    <form method="post" id="main-form">
+        {% csrf_token %}
+        <div class="container mt-5">
+            <h1 class="text-center mb-5">Update Report</h1>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{form.name|as_crispy_field}}
+                    </div>
+                    <div class="form-group">
+                        {{form.chart_num|as_crispy_field}}
+                    </div>
+                    <div class="form-group" style="width: 35%">
+                        {{form.dob|as_crispy_field}}
+                    </div>
+                    <div class="form-group" style="width: 35%">
+                        {{form.state_where_died|as_crispy_field}}
+                    </div>
+                    <div class="form-group">
+                        {{form.death_cert_num|as_crispy_field}}
+                    </div>
+                    <div class="form-group" style="width: 35%">
+                        {{form.dod|as_crispy_field}}
+                    </div>
+                    <div class="form-group">
+                        {{form.place_of_death|as_crispy_field}}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group" style="width: 35%">
+                        {{form.race|as_crispy_field}}
+                    </div>
+                    <div class="form-group" style="width: 35%">
+                        {{form.autopsy_performed|as_crispy_field}}
+                    </div>
+                    <div class="form-group">
+                        {{form.manner_of_death|as_crispy_field}}
+                    </div>
+                    <div class="form-group">
+                        {{form.death_by_work_injury|as_crispy_field}}
+                    </div>
+                    <div class="form-group">
+                        {{form.place_of_injury|as_crispy_field}}
+                    </div>
+                    <div class="form-group">
+                        {{form.method_of_verification|as_crispy_field}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-3 flex">
+            <a href="{% url 'deathrr:home' %}" class="btn btn-secondary">Cancel</a>
+            <button class="btn btn-secondary" type="submit" form="main-form">Save and Exit</button>
+        </div>
+    </form>
+    <p class="text-center mt-5" style="color:red;">NOTE: Code changes below are applied instantly. 'Save and Exit' button only updates the information above.</p>
+    <div id="codes_list" style="height:300px;"></div>
+    <div class="container flex" hx-trigger="load" hx-get="{% url 'deathrr:add_code' pk %}" hx-target="#codes_list"></div>
+{% endblock %}

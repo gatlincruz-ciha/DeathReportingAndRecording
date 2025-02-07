@@ -1,0 +1,44 @@
+{% load crispy_forms_tags %}
+{% load static %}
+<div id="divid">
+    <div style="height:300px; overflow-y:scroll;">
+<table class="table table-hover mx-auto mt-5"  id="codes_table" style="width:60%; ">
+    <thead>
+    <tr>
+        <th scope="col">Code</th>
+        <th scope="col">Description</th>
+        <th scope="col">Type</th>
+        <th scope="col">Is Primary COD</th>
+        <th scope="col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+  {% if codes_size > 0 %}
+  {% for code in existing_codes %}
+    <tr>
+      <th scope="row">{{code.code}}</th>
+      <td>{{code.description}}</td>
+        <td>{{code.type}}</td>
+        {% if code.is_primary %}
+        <td>Yes</td>
+        {% else %}
+        <td>No</td>
+        {% endif %}
+        <td><form style="display:inline-block" id="deleteForm" hx-post="{% url 'deathrr:delete_deceased_code' pk code.id %}" method="post" hx-target="#divid"> {% csrf_token %} <button class="btn btn-danger">Delete</button></form></td>
+    </tr>
+  {% endfor%}
+  {% else %}
+  <tr>
+    <td>No codes have been added yet</td>
+  </tr>
+  {% endif %}
+</table>
+        </div>
+<form method="post" id="add-code-form">
+    <div class="d-flex flex-row" style="margin-left:20%">
+        <div class="p-2">{{new_code_form.code_id|as_crispy_field}}</div>
+        <div class="p-5">{{new_code_form.is_primary|as_crispy_field}}</div>
+        <div class="p-5 mb-5"><button class="btn btn-success" type="submit" form="add-code-form" name="add_codes_btn" hx-trigger="click" hx-post="{% url 'deathrr:add_code' pk %}" hx-target="#codes_list">Add</button></div>
+    </div>
+</form>
+</div>

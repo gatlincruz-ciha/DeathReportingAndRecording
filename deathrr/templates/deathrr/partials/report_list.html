@@ -1,0 +1,51 @@
+<div id="rep_tab">
+    <p class="text-center">Reports found: {{reports_size}}</p>
+    <div style = "height:400px; overflow-y:scroll;">
+<table class="table table-hover ml-4 mr-4 mt-4" style="background-color:white;" id="reports_table">
+    <thead>
+    <tr><th scope="col">Name</th>
+      <th scope="col">HRN</th>
+        <th scope="col">Date of Birth</th>
+      <th scope="col">Date of Death</th>
+      <th scope="col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+  {% if reports_size > 0 %}
+  {% for report in reports %}
+    <tr>
+        {% if report.name %}
+        <th scope="row">{{report.name}}</th>
+        {% else %}
+        <th scope="row">------</th>
+        {% endif %}
+        {% if report.chart_num %}
+        <td>{{report.chart_num}}</td>
+        {% else %}
+        <td>------</td>
+        {% endif %}
+        {% if report.dob %}
+        <td>{{report.dob}}</td>
+        {% else %}
+        <td>------</td>
+        {% endif %}
+        <td>{{report.dod}}</td>
+        <td>
+            <form style="display:inline-block; border:none;" method="get" action="{% url 'deathrr:view_deceased_report' report.id%}"> {% csrf_token %} <button style="border:none; background:white;" class=""><i class="bi bi-eye-fill"></i></button></form>
+            <form style="display:inline-block; border:none;" method="get" class="" action="{% url 'deathrr:update_deceased_report' report.id%}">{% csrf_token %} <button style="border:none; background:white;" class=""><i class="bi bi-pencil-square"></i></button></form>
+            <form style="display:inline-block; border: none;" id="deleteForm" hx-post="{% url 'deathrr:delete_deceased_report' report.id %}" method="post" hx-target="#rep_tab"> {% csrf_token %} <button style="border:none; background:white; color:red;" class=""><i class="bi bi-x-lg"></i></button></form>
+        </td>
+    </tr>
+  {% endfor%}
+  {% else %}
+  <tr>
+    <td>No data for selected dates</td>
+  </tr>
+  {% endif %}
+</table>
+
+    </div>
+    {% if reports_size > 0 %}
+        <a href="{% url 'deathrr:download_detail_reports' %}"><button class="btn btn-secondary mr-5" style="margin-right:80px" type="button">Download</button></a>
+    {% endif %}
+</div>
