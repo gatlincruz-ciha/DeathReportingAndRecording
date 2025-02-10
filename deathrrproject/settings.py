@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-wdgm4a9u*m+q!eep%-f8pwt3^*lmt#bnp@2p&aifj7ee98vxno
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
@@ -35,7 +35,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 INSTALLED_APPS = [
     'deathrr',
     'users',
-
+    
     'bootstrap5',
     'crispy_forms',
     'crispy_bootstrap5',
@@ -90,8 +90,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'testdb3',
-        'USER': 'root',
-        'PASSWORD': 'P@$$w0rd',
+        'USER': 'rattler',
+        'PASSWORD': 'DemB0n3s',
         'HOST': 'localhost',
         'PORT': '3306'
     },
@@ -144,11 +144,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",
+# ]
+STATIC_URL = 'staticfiles/'
+#STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = '/mnt/e/rattler/drr/staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

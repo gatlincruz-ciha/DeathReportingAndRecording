@@ -1,0 +1,21 @@
+[2025-02-07 15:39:26 -0500] [32340] [INFO] Starting gunicorn 23.0.0
+[2025-02-07 15:39:26 -0500] [32340] [INFO] Listening at: http://0.0.0.0:8003 (32340)
+[2025-02-07 15:39:26 -0500] [32340] [INFO] Using worker: sync
+[2025-02-07 15:39:26 -0500] [32342] [INFO] Booting worker with pid: 32342
+[2025-02-07 15:41:27 -0500] [32340] [INFO] Handling signal: int
+[2025-02-07 20:41:27 +0000] [32342] [INFO] Worker exiting (pid: 32342)
+[2025-02-07 15:41:27 -0500] [32340] [INFO] Shutting down: Master
+[2025-02-07 15:41:29 -0500] [315] [INFO] Starting gunicorn 23.0.0
+[2025-02-07 15:41:29 -0500] [315] [INFO] Listening at: http://0.0.0.0:8003 (315)
+[2025-02-07 15:41:29 -0500] [315] [INFO] Using worker: sync
+[2025-02-07 15:41:29 -0500] [320] [INFO] Booting worker with pid: 320
+[2025-02-07 15:55:40 -0500] [315] [INFO] Handling signal: int
+[2025-02-07 20:55:40 +0000] [320] [INFO] Worker exiting (pid: 320)
+[2025-02-07 15:55:40 -0500] [315] [INFO] Shutting down: Master
+[2025-02-07 15:56:32 -0500] [5565] [INFO] Starting gunicorn 23.0.0
+[2025-02-07 15:56:32 -0500] [5565] [INFO] Listening at: http://0.0.0.0:8003 (5565)
+[2025-02-07 15:56:32 -0500] [5565] [INFO] Using worker: sync
+[2025-02-07 15:56:32 -0500] [5571] [INFO] Booting worker with pid: 5571
+[2025-02-10 11:00:36 -0500] [5565] [INFO] Handling signal: int
+[2025-02-10 16:00:36 +0000] [5571] [INFO] Worker exiting (pid: 5571)
+[2025-02-10 11:00:36 -0500] [5565] [INFO] Shutting down: Master

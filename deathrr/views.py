@@ -1,4 +1,5 @@
 import json
+# import pandas as pd
 
 from django.shortcuts import render
 import datetime
@@ -8,7 +9,6 @@ from .forms import DeceasedEntryForm, NewCodeForm
 from django.shortcuts import redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.db import connections
-import pandas as pd
 from django.shortcuts import HttpResponse
 
 
@@ -321,43 +321,43 @@ def find_and_add_icd_code(icd_code):
 
 @login_required(login_url="/users/login")
 def download_count_reports(request):
-    data = request.session.get('download_count_data', None)
-    if data:
-        list_data = json.loads(data)
-        cols = ['Count', 'Description', 'Code']
-        tbl = []
-        for i in list_data:
-            tbl.append([i['count'], i['description'], i['code']])
-        df = pd.DataFrame(tbl, columns=cols)
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocuments.spreadsheetml.sheet')
-        now = datetime.datetime.now()
-        filename = now.strftime('death_r&r_data_%m%d%y_%H%M%S')
-        response['Content-Disposition'] = 'attachment; filename=' + filename + '.xlsx'
-        df.to_excel(response, index=False, engine='openpyxl')
-        return response
+    # data = request.session.get('download_count_data', None)
+    # if data:
+    #     list_data = json.loads(data)
+    #     cols = ['Count', 'Description', 'Code']
+    #     tbl = []
+    #     for i in list_data:
+    #         tbl.append([i['count'], i['description'], i['code']])
+    #     df = pd.DataFrame(tbl, columns=cols)
+    #     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocuments.spreadsheetml.sheet')
+    #     now = datetime.datetime.now()
+    #     filename = now.strftime('death_r&r_data_%m%d%y_%H%M%S')
+    #     response['Content-Disposition'] = 'attachment; filename=' + filename + '.xlsx'
+    #     df.to_excel(response, index=False, engine='openpyxl')
+    #     return response
     return 5
 
 
 @login_required(login_url="/users/login")
 def download_detail_reports(request):
-    data = request.session.get('download_count_data', None)
-    if data:
-        list_data = json.loads(data)
-        cols = ['Name', 'Chart Number', 'DOB', 'State', 'Death Certificate Number', 'DOD', 'Place of Death', 'Race', 'Autopsy Performed', 'Manner of Death', 'Was Work Related', 'Place of Injury', 'Method of Verification', 'Codes']
-        tbl = []
-        reports = DeceasedEntry.objects.filter(id__in=list_data)
-        for report in reports:
-            autopsy_performed = "Yes" if report.autopsy_performed == 1 else "No"
-            was_work_injury = "Yes" if report.death_by_work_injury == 1 else "No"
-            place_of_injury = "N/A" if not report.place_of_injury else report.place_of_injury
-            report_codes = list(ICDCode.objects.filter(id__in=list(DeceasedCodes.objects.filter(deceased_id=report.id).values_list('code_id', flat=True))).values_list('code', flat=True))
-            tbl.append([report.name, report.chart_num, report.dob, report.state_where_died, report.death_cert_num, report.dod, report.place_of_death, report.race, autopsy_performed, report.manner_of_death, was_work_injury, place_of_injury, report.method_of_verification, report_codes])
+    # data = request.session.get('download_count_data', None)
+    # if data:
+    #     list_data = json.loads(data)
+    #     cols = ['Name', 'Chart Number', 'DOB', 'State', 'Death Certificate Number', 'DOD', 'Place of Death', 'Race', 'Autopsy Performed', 'Manner of Death', 'Was Work Related', 'Place of Injury', 'Method of Verification', 'Codes']
+    #     tbl = []
+    #     reports = DeceasedEntry.objects.filter(id__in=list_data)
+    #     for report in reports:
+    #         autopsy_performed = "Yes" if report.autopsy_performed == 1 else "No"
+    #         was_work_injury = "Yes" if report.death_by_work_injury == 1 else "No"
+    #         place_of_injury = "N/A" if not report.place_of_injury else report.place_of_injury
+    #         report_codes = list(ICDCode.objects.filter(id__in=list(DeceasedCodes.objects.filter(deceased_id=report.id).values_list('code_id', flat=True))).values_list('code', flat=True))
+    #         tbl.append([report.name, report.chart_num, report.dob, report.state_where_died, report.death_cert_num, report.dod, report.place_of_death, report.race, autopsy_performed, report.manner_of_death, was_work_injury, place_of_injury, report.method_of_verification, report_codes])
 
-        df = pd.DataFrame(tbl, columns=cols)
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocuments.spreadsheetml.sheet')
-        now = datetime.datetime.now()
-        filename = now.strftime('death_r&r_data_%m%d%y_%H%M%S')
-        response['Content-Disposition'] = 'attachment; filename=' + filename + '.xlsx'
-        df.to_excel(response, index=False, engine='openpyxl')
-        return response
+    #     df = pd.DataFrame(tbl, columns=cols)
+    #     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocuments.spreadsheetml.sheet')
+    #     now = datetime.datetime.now()
+    #     filename = now.strftime('death_r&r_data_%m%d%y_%H%M%S')
+    #     response['Content-Disposition'] = 'attachment; filename=' + filename + '.xlsx'
+    #     df.to_excel(response, index=False, engine='openpyxl')
+    #     return response
     return 5
