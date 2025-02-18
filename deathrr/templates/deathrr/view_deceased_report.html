@@ -121,7 +121,11 @@ View Report
             </tbody>
         </table>
         <div class="text-center mt-5">
+            {% if return_screen == 1 %}
             <form method="GET" action="{% url 'deathrr:home' %}"><button class="btn btn-primary" type="submit">Finish</button></form>
+            {% else %}
+            <form method="GET" action="{% url 'deathrr:range_home' %}"><button class="btn btn-primary" type="submit">Finish</button></form>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

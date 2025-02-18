@@ -31,8 +31,11 @@
         function addCodeToSearch(row) {
             const rowCode = row.getElementsByTagName('td')[1].innerText
             const filterTextBox = document.getElementById('filter_text');
+            const specialFilterTextBox = document.getElementById('special_filter');
+
             filterTextBox.value = rowCode;
             htmx.trigger(filterTextBox, 'blur');
+
         }
     </script>
 </div>

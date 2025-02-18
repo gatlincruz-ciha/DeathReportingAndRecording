@@ -8,8 +8,12 @@ from .models import DeceasedEntry, DeceasedCodes, ICDCode
 from .forms import DeceasedEntryForm, NewCodeForm
 from django.shortcuts import redirect, reverse
 from django.contrib.auth.decorators import login_required
-from django.db import connections
-from django.shortcuts import HttpResponse
+from django.db import connections, connection
+from django.http import JsonResponse, HttpResponse
+from collections import Counter
+
+
+
 
 
 @login_required(login_url="/users/login")
@@ -27,7 +31,10 @@ def home_view(request):
     ]
 
     special_filters = ["-----", "All Reports", "All Reports in Date Range", "All Reports with No Codes", "All Reports with 'Pending Investigation'"]
-
+    # if request.GET.get('start_code'):
+    #     request.session['start_code'] = request.GET.get('start_code')
+    # elif request.GET.get('end_code'):
+    #     request.session['end_code'] = request.GET.get('end_code')
     if request.GET.get('filter_start_date'):
         start_date = request.GET.get('filter_start_date')
         request.session['start_date'] = start_date
@@ -43,19 +50,41 @@ def home_view(request):
     else:
         end_date = datetime.date.today()
     filter_state = request.session.get('state', '-----')
+    start_code = request.session.get('start_code', '')
+    end_code = request.session.get('end_code', '')
     filter_text = request.session.get('filter_text', '')
     filter_code = request.session.get('filter_code', '')
     filter_primary = request.session.get('filter_primary', False)
     special_filter = request.session.get('special_filter', "-----")
 
     return render(request, 'deathrr/home.html', {'start_date': start_date, 'end_date': end_date, 'filter_code': filter_code, 'states':states, 'selected_state': filter_state, 'filter_text': filter_text,
-                                                 'filter_primary': filter_primary, 'special_filters': special_filters, 'selected_special_filter': special_filter})
+                                                 'filter_primary': filter_primary, 'special_filters': special_filters, 'selected_special_filter': special_filter, 'start_code': start_code, 'end_code': end_code})
 
+@login_required(login_url="/users/login")
+def range_home_view(request):
+
+    start_date = request.session.get('range_start_date', str(datetime.date.today()))
+    start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
+    request.session['range_start_date'] = str(start_date)
+
+    end_date = request.session.get('range_end_date', str(datetime.date.today()))
+    end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
+    request.session['range_end_date'] = str(end_date)
+    codes = ICDCode.objects.all().order_by('code').values_list('code', flat=True)
+    start_code = request.session.get('range_start_code', codes[0])
+    default_start_code = codes[0]
+    default_end_code = codes[len(codes)-1]
+    end_code = request.session.get('range_end_code', codes[len(codes)-1])
+    filter_text = request.session.get('range_filter_text', '')
+    return render(request, 'deathrr/code_range_home.html', {'range_start_date': start_date, 'range_end_date': end_date, 'range_filter_text': filter_text,'range_start_code': start_code, 'range_end_code': end_code, 'default_sc': default_start_code, 'default_ec': default_end_code})
 
 @login_required(login_url="/users/login")
 def filter_reports_view(request):
+
     if request.GET.get('special_filter'):
+
         request.session['special_filter'] = request.GET.get('special_filter')
+
     elif request.GET.get('filter_start_date'):
         request.session['start_date'] = request.GET.get('filter_start_date')
     elif request.GET.get('filter_end_date'):
@@ -66,8 +95,13 @@ def filter_reports_view(request):
         request.session['state'] = request.GET.get('filter_state')
     elif request.GET.get('filter_text'):
         request.session['filter_text'] = request.GET.get('filter_text')
+
     elif 'filter_text' in request.GET and not request.GET.get('filter_text'):
         request.session['filter_text'] = ""
+    elif request.GET.get('start_code'):
+        request.session['start_code'] = request.GET.get('start_code')
+    elif request.GET.get('end_code'):
+        request.session['end_code'] = request.GET.get('end_code')
     else:
         request.session['filter_primary'] = False
     start_date = request.session.get('start_date', str(datetime.date.today()))
@@ -101,10 +135,10 @@ def filter_reports_view(request):
                 else:
                     filtered_mapper = DeceasedCodes.objects.filter(deceased_id__in=report_ids, code_id__in=filter_code_id, is_primary=1).values_list('deceased_id', flat=True)
                 filtered_reports = filtered_reports.filter(id__in=filtered_mapper).order_by('dod')
-                print(list(filtered_reports.values_list('id', flat=True)))
+
                 request.session['download_count_data'] = json.dumps(list(filtered_reports.values_list('id', flat=True)))
 
-                return render(request, 'deathrr/partials/report_list.html', {'reports': filtered_reports, 'reports_size': len(filtered_reports)})
+                return render(request, 'deathrr/partials/report_list.html', {'reports': filtered_reports, 'reports_size': len(filtered_reports), 'return_screen': True})
             else:
                 description_filtered_reports = []
                 report_ids = filtered_reports.values_list('id', flat=True)
@@ -158,11 +192,11 @@ def filter_reports_view(request):
     elif special_filter == "All Reports in Date Range":
         all_reports = DeceasedEntry.objects.filter(dod__gte=start_date, dod__lte=end_date, deleted_flag=0).order_by('dod')
         request.session['download_count_data'] = json.dumps(list(all_reports.values_list('id', flat=True)))
-        return render(request, 'deathrr/partials/report_list.html', {'reports': all_reports, 'reports_size': len(all_reports)})
+        return render(request, 'deathrr/partials/report_list.html', {'reports': all_reports, 'reports_size': len(all_reports), 'return_screen': True})
     elif special_filter == "All Reports":
         all_reports = DeceasedEntry.objects.filter(deleted_flag=0).order_by('dod')
         request.session['download_count_data'] = json.dumps(list(all_reports.values_list('id', flat=True)))
-        return render(request, 'deathrr/partials/report_list.html', {'reports': all_reports, 'reports_size': len(all_reports)})
+        return render(request, 'deathrr/partials/report_list.html', {'reports': all_reports, 'reports_size': len(all_reports), 'return_screen': True})
     elif special_filter == "All Reports with No Codes":
         all_reports = DeceasedEntry.objects.filter(deleted_flag=0).order_by('dod')
         report_ids = all_reports.values_list('id', flat=True)
@@ -170,11 +204,96 @@ def filter_reports_view(request):
         no_code_ids = list(set(report_ids) - set(codes_mapper))
         all_reports = all_reports.filter(id__in=no_code_ids)
         request.session['download_count_data'] = json.dumps(list(all_reports.values_list('id', flat=True)))
-        return render(request, 'deathrr/partials/report_list.html', {'reports': all_reports, 'reports_size': len(all_reports)})
-    else:
+        return render(request, 'deathrr/partials/report_list.html', {'reports': all_reports, 'reports_size': len(all_reports), 'return_screen': True})
+    elif special_filter == "All Reports with 'Pending Investigation'":
         all_reports = DeceasedEntry.objects.filter(dod__gte=start_date, dod__lte=end_date, manner_of_death="Pending Investigation" ,deleted_flag=0).order_by('dod')
         request.session['download_count_data'] = json.dumps(list(all_reports.values_list('id', flat=True)))
-        return render(request, 'deathrr/partials/report_list.html', {'reports': all_reports, 'reports_size': len(all_reports)})
+        return render(request, 'deathrr/partials/report_list.html', {'reports': all_reports, 'reports_size': len(all_reports), 'return_screen': True})
+    # else:
+    #     print("There")
+    #     if start_code != "" and end_code != "":
+    #         start_is_code = is_code(start_code)
+    #         end_is_code = is_code(end_code)
+    #         if start_is_code and end_is_code:
+    #             if start_code < end_code:
+    #                 code_ids = ICDCode.objects.all().order_by('code')
+    #                 code_ids = code_ids.filter(code__gte=start_code, code__lte=end_code).values_list('id', flat=True)
+    #                 #data = DeceasedCodes.objects.filter(code_id__in=code_ids).values_list('code_id', flat=True)
+    #                 data = DeceasedCodes.objects.filter(code_id__in=code_ids).values_list('deceased_id', flat=True)
+    #                 r = DeceasedEntry.objects.filter(id__in=data).values_list('id', flat=True)
+    #                 data = DeceasedCodes.objects.filter(deceased_id__in=r, code_id__in=code_ids).values_list('code_id', flat=True)
+    #
+    #                 #deceased_ids = DeceasedCodes.objects.filter(code_id__in=code_ids).values_list('deceased_id', flat=True)
+    #                 #filtered_reports = DeceasedEntry.objects.filter(id__in=deceased_ids, dod__gte=start_date, dod__lte=end_date, deleted_flag=0).values_list('id', flat=True)
+    #                 #data = DeceasedCodes.objects.filter(deceased_id__in=filtered_reports).values_list('code_id', flat=True)
+    #                 data = dict(Counter(data))
+    #                 filtered_count_reports = []
+    #                 for key in data.keys():
+    #                     curr = ICDCode.objects.get(id=key)
+    #                     filtered_count_reports.append({'count': data[key], 'description': curr.description, 'code': curr.code})
+    #                 filtered_count_reports = sorted(filtered_count_reports, key=lambda x: x['code'])
+    #
+    #                 return render(request, 'deathrr/partials/report_list_count.html', {'reports': filtered_count_reports, 'reports_size': len(filtered_count_reports)})
+    #
+    #
+    #     return HttpResponse("Response")
+
+
+@login_required(login_url="/users/login")
+def filter_range_reports_view(request):
+    if request.GET.get('range_start_date'):
+        request.session['range_start_date'] = request.GET.get('range_start_date')
+    elif request.GET.get('range_end_date'):
+        request.session['range_end_date'] = request.GET.get('range_end_date')
+    elif request.GET.get('range_filter_text'):
+        request.session['range_filter_text'] = request.GET.get('range_filter_text')
+    elif 'range_filter_text' in request.GET and not request.GET.get('range_filter_text'):
+        request.session['range_filter_text'] = ""
+    elif request.GET.get('range_start_code'):
+        request.session['range_start_code'] = request.GET.get('range_start_code')
+    elif request.GET.get('range_end_code'):
+        request.session['range_end_code'] = request.GET.get('range_end_code')
+    start_date = request.session.get('range_start_date', str(datetime.date.today()))
+    end_date = request.session.get('range_end_date', str(datetime.date.today()))
+    filter_text = request.session.get('range_filter_text', '')
+    start_code = request.session.get('range_start_code', '')
+    end_code = request.session.get('range_end_code', '')
+    codes_in_range = ICDCode.objects.filter(code__gte=start_code, code__lte=end_code).values_list('id', flat=True)
+    filtered_reports = DeceasedEntry.objects.filter(dod__gte=start_date, dod__lte=end_date, deleted_flag=0)
+    if filter_text == "" or not is_code(filter_text):
+        if start_code != "" and end_code != "":
+            start_is_code = is_code(start_code)
+            end_is_code = is_code(end_code)
+            if start_is_code and end_is_code:
+                if start_code < end_code:
+                    code_ids = ICDCode.objects.all().order_by('code')
+                    code_ids = code_ids.filter(code__gte=start_code, code__lte=end_code).values_list('id', flat=True)
+                    #data = DeceasedCodes.objects.filter(code_id__in=code_ids).values_list('code_id', flat=True)
+                    data = DeceasedCodes.objects.filter(code_id__in=code_ids).values_list('deceased_id', flat=True)
+                    r = DeceasedEntry.objects.filter(id__in=data, dod__gte=start_date, dod__lte=end_date, deleted_flag=0).values_list('id', flat=True)
+                    data = DeceasedCodes.objects.filter(deceased_id__in=r, code_id__in=code_ids).values_list('code_id', flat=True)
+
+                    #deceased_ids = DeceasedCodes.objects.filter(code_id__in=code_ids).values_list('deceased_id', flat=True)
+                    #filtered_reports = DeceasedEntry.objects.filter(id__in=deceased_ids, dod__gte=start_date, dod__lte=end_date, deleted_flag=0).values_list('id', flat=True)
+                    #data = DeceasedCodes.objects.filter(deceased_id__in=filtered_reports).values_list('code_id', flat=True)
+                    data = dict(Counter(data))
+                    filtered_count_reports = []
+                    for key in data.keys():
+                        curr = ICDCode.objects.get(id=key)
+                        filtered_count_reports.append({'count': data[key], 'description': curr.description, 'code': curr.code})
+                    filtered_count_reports = sorted(filtered_count_reports, key=lambda x: x['code'])
+
+                    return render(request, 'deathrr/partials/report_list_count.html', {'reports': filtered_count_reports, 'reports_size': len(filtered_count_reports)})
+    if filter_text != "" and is_code(filter_text):
+        report_ids = filtered_reports.values_list('id', flat=True)
+        filter_code_id = ICDCode.objects.filter(code=filter_text).values_list('id', flat=True)
+
+        filtered_mapper = DeceasedCodes.objects.filter(deceased_id__in=report_ids, code_id__in=filter_code_id).values_list('deceased_id', flat=True)
+        filtered_reports = filtered_reports.filter(id__in=filtered_mapper).order_by('dod')
+        request.session['download_count_data'] = json.dumps(list(filtered_reports.values_list('id', flat=True)))
+        return render(request, 'deathrr/partials/report_list.html',
+                      {'reports': filtered_reports, 'reports_size': len(filtered_reports), 'return_screen': False})
+    return HttpResponse("Hello")
 
 
 
@@ -182,7 +301,6 @@ def is_code(text):
     obj = ICDCode.objects.filter(code=text)
     is_code = False if not obj.exists() else True
     return is_code
-
 
 
 @login_required(login_url="/users/login")
@@ -198,7 +316,8 @@ def create_deceased_report(request):
 
 
 @login_required(login_url="/users/login")
-def update_deceased_report(request, pk):
+def update_deceased_report(request, pk, return_screen):
+    r_screen = 1 if return_screen == "True" else 0
     report = DeceasedEntry.objects.get(id=pk)
     modified_by = request.user.username
     form = DeceasedEntryForm(instance=report)
@@ -212,11 +331,12 @@ def update_deceased_report(request, pk):
     else:
         form = DeceasedEntryForm(instance=report)
 
-    return render(request, 'deathrr/update_deceased_report.html', {'form': form, 'pk': pk})
+    return render(request, 'deathrr/update_deceased_report.html', {'form': form, 'pk': pk, 'return_screen': r_screen})
 
 
 @login_required(login_url="/users/login")
-def view_deceased_report(request, pk):
+def view_deceased_report(request, pk, return_screen):
+    r_screen = 1 if return_screen == "True" else 0
     report = DeceasedEntry.objects.get(id=pk)
     try:
         codes = DeceasedCodes.objects.filter(deceased_id=pk)
@@ -228,13 +348,14 @@ def view_deceased_report(request, pk):
         codes = None
         code_info = []
     if codes:
-        return render(request, 'deathrr/view_deceased_report.html', {'report': report, 'codes': code_info, 'codes_size': len(code_info)})
+        return render(request, 'deathrr/view_deceased_report.html', {'report': report, 'codes': code_info, 'codes_size': len(code_info), 'return_screen': r_screen})
     else:
-        return render(request, 'deathrr/view_deceased_report.html', {'report': report, 'codes': None, 'codes_size': 0})
+        return render(request, 'deathrr/view_deceased_report.html', {'report': report, 'codes': None, 'codes_size': 0, 'return_screen': r_screen})
 
 
 @login_required(login_url="/users/login")
-def delete_report(request, pk):
+def delete_report(request, pk, return_screen):
+    r_screen = 1 if return_screen == "True" else 0
     report = DeceasedEntry.objects.get(id=pk)
     start_date = request.session.get('start_date', datetime.datetime.today())
     end_date = request.session.get('end_date', datetime.datetime.today())
@@ -243,7 +364,7 @@ def delete_report(request, pk):
         report.save()
     filtered_reports = DeceasedEntry.objects.filter(dod__gte=start_date, dod__lte=end_date, deleted_flag=False).order_by('dod')
     request.session['download_count_data'] = json.dumps(list(filtered_reports.values_list('id', flat=True)))
-    return render(request, 'deathrr/partials/report_list.html', {'reports': filtered_reports, 'reports_size': len(filtered_reports)})
+    return render(request, 'deathrr/partials/report_list.html', {'reports': filtered_reports, 'reports_size': len(filtered_reports), 'return_screen': r_screen})
 
 
 @login_required(login_url="/users/login")
@@ -303,20 +424,30 @@ def delete_deceased_code(request, d_pk, c_pk):
 
 
 @login_required(login_url="/users/login")
-def find_and_add_icd_code(icd_code):
-    code_exists = False
+def find_and_add_icd_code(request):
+    icd_code = request.GET.get('code_text')
+
+    code_ien = -1
     potential_entry = ICDCode.objects.filter(code=icd_code)
     if not potential_entry.exists():
-        with connections['RPMS'].cursor() as cursor:
+        # with connections['RPMS'].cursor() as cursor:
+        #     query = f"SELECT * FROM IHS.BVS_MORTALITY_ICD10 WHERE CODE='{icd_code}'"
+        #     cursor.execute(query)
+        #     print("thelre")
+        #     row = cursor.fetchone()
+        #     if row:
+        #         ICDCode.objects.create(id=row.ien ,code=row.code, description=row.description, type='C')
+        #         code_ien = ICDCode.objects.get(id=row.ien)
+        with connection.cursor() as cursor:
+            cursor.execute('USE rpms')
             query = f"SELECT * FROM IHS.BVS_MORTALITY_ICD10 WHERE CODE='{icd_code}'"
             cursor.execute(query)
-            row = cursor.fetchone()
-            if row:
-                ICDCode.objects.create(code=row.code, description=row.description, type='C')
-                code_exists = True
+            result = cursor.fetchone()
+
     else:
-        code_exists = True
-    return code_exists
+        code_ien = ICDCode.objects.filter(code=icd_code)[0].id
+
+    return JsonResponse({'code_ien': code_ien})
 
 
 @login_required(login_url="/users/login")

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+    <h1>Deceased Reports</h1>
+        <div>
+            <label for="range_start_date">Start Date:</label>
+            <input type="date" id="range_start_date" value="{{ range_start_date|date:'Y-m-d' }}" name="range_start_date" hx-trigger="load, blur" hx-get="{% url 'deathrr:filter_range_reports' %}" hx-target="#range_reports_list">
+            <label class="ms-3" for="range_end_date">End Date:</label>
+            <input type="date" id="range_end_date" value="{{ range_end_date|date:'Y-m-d' }}" name="range_end_date" hx-trigger=" load, blur" hx-get="{% url 'deathrr:filter_range_reports' %}" hx-target="#range_reports_list">
+        </div>
+        <div class="mt-4 mb-4">
+            <label for="range_start_code" >Start Code:</label>
+            <input id="range_start_code" value="{{ range_start_code }}" name="range_start_code" hx-trigger="blur, load" hx-get="{% url 'deathrr:filter_range_reports' %}" hx-target="#range_reports_list">
+            <label for="range_end_code" >End Code:</label>
+            <input id="range_end_code" value="{{ range_end_code }}" name="range_end_code" hx-trigger="blur, load" hx-get="{% url 'deathrr:filter_range_reports' %}" hx-target="#range_reports_list">
+        </div>
+        <div class="mt-4 mb-4">
+            <label for="filter_text" >Filter by ICD Code or ICD Code Description:</label>
+            <input id="filter_text" value="{{ range_filter_text }}" name="range_filter_text" hx-trigger="blur, load" hx-get="{% url 'deathrr:filter_range_reports' %}" hx-target="#range_reports_list">
+        </div>
+        <div id="range_reports_list" style="height:500px"></div>
+<script>
+    const startCodeElement = document.getElementById('range_start_code');
+    const endCodeElement = document.getElementById('range_end_code');
+
+    startCodeElement.addEventListener('blur', function() {
+        if(startCodeElement.value === '') {
+            startCodeElement.value = "{{default_sc}}";
+            htmx.trigger(startCodeElement, 'blur');
+
+        }
+    });
+    endCodeElement.addEventListener('blur', function() {
+        if(endCodeElement.value === '') {
+            endCodeElement.value = "{{default_ec}}";
+            htmx.trigger(endCodeElement, 'blur');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateElement = document.getElementById('range_start_date');
+        const endDateElement = document.getElementById('range_end_date');
+
+    });
+</script>
+{% endblock %}

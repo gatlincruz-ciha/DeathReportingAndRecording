@@ -41,4 +41,33 @@
         <div class="p-5 mb-5"><button class="btn btn-success" type="submit" form="add-code-form" name="add_codes_btn" hx-trigger="click" hx-post="{% url 'deathrr:add_code' pk %}" hx-target="#codes_list">Add</button></div>
     </div>
 </form>
+
+    <div class="mt-4 mb-4">
+            <label id="invalid_code_lable" style="color:red;" hidden>Invalid Code Entered.</label>
+            <label for="code_text" >Enter code manually:</label>
+<!--            <input id="code_text" value="{{ filter_text }}" name="code_text" hx-trigger="blur" hx-get="{% url 'deathrr:find_and_add_code' %}" hx-on="htmx:afterRequest: handleResponse">-->
+            <input id="code_text" value="{{ filter_text }}" name="code_text">
+
+    </div>
+    <script>
+        document.getElementById("code_text").addEventListener("blur", function() {
+            const enteredCode = document.getElementById("code_text").value;
+            fetch("{% url 'deathrr:find_and_add_code' %}?code_text=" + encodeURIComponent(enteredCode))
+                .then(response => response.json())
+                .then(data => {
+                    // Handle the response from the server
+                    if (data.code_ien != -1) {
+                        document.getElementById("code_text").style.color = "green";
+                        alert(data.code_ien);
+                    } else {
+                        document.getElementById("code_text").style.color = "red";
+                        console.log("The code is invalid.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+        });
+    </script>
+
 </div>

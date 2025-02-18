@@ -34,10 +34,8 @@ Home
             <label for="filter_text" >Filter by ICD Code or ICD Code Description:</label>
             <input id="filter_text" value="{{ filter_text }}" name="filter_text" hx-trigger="blur, load" hx-get="{% url 'deathrr:filter_reports' %}" hx-target="#reports_list">
         </div>
+
         <div id="reports_list" style="height:500px"></div>
-        <div class="d-flex align-items-center justify-content-end">
-            <a href="{% url 'deathrr:create_deceased_report' %}"><button class="btn btn-secondary mr-5" style="margin-right:80px" type="button">Create Report</button></a>
-        </div>
 <script>
     function triggerSecond() {
             const stateFilter = document.getElementById('state_filter');
@@ -54,20 +52,40 @@ Home
         var primaryCOD = document.getElementById("filter_primary");
         var state = document.getElementById("filter_state");
         var text = document.getElementById("filter_text");
+        var startCode = document.getElementById("start_code");
+        var endCode = document.getElementById("end_code");
         if(specialFilter !== "-----") {
-            if(specialFilter !== "All Reports in Date Range") {
-                startDate.disabled = true;
-                endDate.disabled = true;
-            }
-            else {
+            if(specialFilter === "All Reports in Date Range") {
                 startDate.disabled = false;
                 endDate.disabled = false;
+                startCode.disabled = true;
+                endCode.disabled = true;
+                primaryCOD.disabled = true;
+                state.disabled = true;
+                text.disabled = true;
             }
-            primaryCOD.disabled = true;
-            state.disabled = true;
-            text.disabled = true;
+            else if(specialFilter === "All Reports within Code Range") {
+                startDate.disabled = false;
+                endDate.disabled = false;
+                startCode.disabled = false;
+                endCode.disabled = false;
+                primaryCOD.disabled = true;
+                state.disabled = true;
+                text.disabled = true;
+            }
+            else {
+                startDate.disabled = true;
+                endDate.disabled = true;
+                startCode.disabled = true;
+                endCode.disabled = true;
+                primaryCOD.disabled = true;
+                state.disabled = true;
+                text.disabled = true;
+            }
         }
         else {
+            startCode.disabled = true;
+            endCode.disabled = true;
             startDate.disabled = false;
             endDate.disabled = false;
             primaryCOD.disabled = false;

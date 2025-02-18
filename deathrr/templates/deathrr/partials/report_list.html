@@ -31,9 +31,9 @@
         {% endif %}
         <td>{{report.dod}}</td>
         <td>
-            <form style="display:inline-block; border:none;" method="get" action="{% url 'deathrr:view_deceased_report' report.id%}"> {% csrf_token %} <button style="border:none; background:white;" class=""><i class="bi bi-eye-fill"></i></button></form>
-            <form style="display:inline-block; border:none;" method="get" class="" action="{% url 'deathrr:update_deceased_report' report.id%}">{% csrf_token %} <button style="border:none; background:white;" class=""><i class="bi bi-pencil-square"></i></button></form>
-            <form style="display:inline-block; border: none;" id="deleteForm" hx-post="{% url 'deathrr:delete_deceased_report' report.id %}" method="post" hx-target="#rep_tab"> {% csrf_token %} <button style="border:none; background:white; color:red;" class=""><i class="bi bi-x-lg"></i></button></form>
+            <form style="display:inline-block; border:none;" method="get" action="{% url 'deathrr:view_deceased_report' report.id return_screen %}"> {% csrf_token %} <button style="border:none; background:white;" class=""><i class="bi bi-eye-fill"></i></button></form>
+            <form style="display:inline-block; border:none;" method="get" class="" action="{% url 'deathrr:update_deceased_report' report.id return_screen %}">{% csrf_token %} <button style="border:none; background:white;" class=""><i class="bi bi-pencil-square"></i></button></form>
+            <form style="display:inline-block; border: none;" id="deleteForm" hx-post="{% url 'deathrr:delete_deceased_report' report.id return_screen %}" method="post" hx-target="#rep_tab"> {% csrf_token %} <button style="border:none; background:white; color:red;" class=""><i class="bi bi-x-lg"></i></button></form>
         </td>
     </tr>
   {% endfor%}

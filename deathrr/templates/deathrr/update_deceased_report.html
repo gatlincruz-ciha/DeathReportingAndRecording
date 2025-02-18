@@ -57,7 +57,11 @@ Update Report
             </div>
         </div>
         <div class="text-center mt-3 flex">
+            {% if return_screen == 1 %}
             <a href="{% url 'deathrr:home' %}" class="btn btn-secondary">Cancel</a>
+            {% else %}
+            <a href="{% url 'deathrr:range_home' %}" class="btn btn-secondary">Cancel</a>
+            {% endif %}
             <button class="btn btn-secondary" type="submit" form="main-form">Save and Exit</button>
         </div>
     </form>
