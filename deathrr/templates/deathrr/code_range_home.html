@@ -19,7 +19,7 @@ Home
             <input id="range_end_code" value="{{ range_end_code }}" name="range_end_code" hx-trigger="blur, load" hx-get="{% url 'deathrr:filter_range_reports' %}" hx-target="#range_reports_list">
         </div>
         <div class="mt-4 mb-4">
-            <label for="filter_text" >Filter by ICD Code or ICD Code Description:</label>
+            <label for="filter_text" >Filter by ICD Code:</label>
             <input id="filter_text" value="{{ range_filter_text }}" name="range_filter_text" hx-trigger="blur, load" hx-get="{% url 'deathrr:filter_range_reports' %}" hx-target="#range_reports_list">
         </div>
         <div id="range_reports_list" style="height:500px"></div>

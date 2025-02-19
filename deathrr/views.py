@@ -293,7 +293,14 @@ def filter_range_reports_view(request):
         request.session['download_count_data'] = json.dumps(list(filtered_reports.values_list('id', flat=True)))
         return render(request, 'deathrr/partials/report_list.html',
                       {'reports': filtered_reports, 'reports_size': len(filtered_reports), 'return_screen': False})
-    return HttpResponse("Hello")
+    invalid_code_html = """
+    <html>
+        <body> <h4 style="color:red;">Invalid code entered</h4>
+                <h5 style="color:red;">Leave code entry textbox blank to set to lowest or highest used code </h5>
+        </body>
+    </html>
+    """
+    return HttpResponse(invalid_code_html)
 
 
 
