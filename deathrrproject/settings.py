@@ -24,6 +24,7 @@ SECRET_KEY = 'django-insecure-wdgm4a9u*m+q!eep%-f8pwt3^*lmt#bnp@2p&aifj7ee98vxno
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+SESSION_COOKIE_AGE = 28800
 
 ALLOWED_HOSTS = ['*']
 
@@ -90,8 +91,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'testdb3',
-        'USER': 'root',
-        'PASSWORD': 'P@$$w0rd',
+        'USER': 'rattler',
+        'PASSWORD': 'DemB0n3s',
         'HOST': 'localhost',
         'PORT': '3306'
     },
@@ -149,7 +150,7 @@ USE_TZ = True
 # STATICFILES_DIRS = [
 #     BASE_DIR / "static",
 # ]
-STATIC_URL = 'staticfiles/'
+STATIC_URL = '/staticfiles/'
 #STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = '/mnt/e/rattler/drr/staticfiles'
 
