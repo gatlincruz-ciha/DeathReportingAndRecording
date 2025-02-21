@@ -68,4 +68,7 @@ Update Report
     <p class="text-center mt-5" style="color:red;">NOTE: Code changes below are applied instantly. 'Save and Exit' button only updates the information above.</p>
     <div id="codes_list" style="height:300px;"></div>
     <div class="container flex" hx-trigger="load" hx-get="{% url 'deathrr:add_code' pk %}" hx-target="#codes_list"></div>
+    <br><br><div class="mt-5">
+        <p class="text-center mt-5" style="color:red;">NOTE: If code is not listed, you can add the code <a href="{% url 'deathrr:add_icd_code_view' pk return_screen %}">here</a></p>
+    </div>
 {% endblock %}

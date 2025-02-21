@@ -1,5 +1,5 @@
 from django import forms
-from .models import DeceasedEntry, DeceasedCodes
+from .models import DeceasedEntry, DeceasedCodes, ICDCode
 
 
 class DateInput(forms.DateInput):
@@ -209,3 +209,11 @@ class NewCodeForm(forms.ModelForm):
 
         fields = ('code_id', 'is_primary')
         labels = {'code_id': 'ICD Code:', 'is_primary': 'Is Primary Cause of Death?'}
+
+
+class NewICDCodeForm(forms.ModelForm):
+    class Meta:
+        model = ICDCode
+
+        fields = ('code', 'description')
+        labels = {'code': 'ICD Code', 'description': 'Code Description'}

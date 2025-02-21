@@ -16,5 +16,6 @@ urlpatterns = [
     path('add_code/<int:pk>', views.add_code, name='add_code'),
     path('download_count_reports', views.download_count_reports, name="download_count_reports"),
     path('download_detail_reports', views.download_detail_reports, name="download_detail_reports"),
-    path('find_code', views.find_and_add_icd_code, name='find_and_add_code')
+    path('find_code', views.find_and_add_icd_code, name='find_and_add_code'),
+    path('add_icd_code/<int:pk>/<str:return_screen>', views.add_icd_code_view, name='add_icd_code_view')
 ]

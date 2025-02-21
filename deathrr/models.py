@@ -26,7 +26,7 @@ class DeceasedEntry(models.Model):
 
 
 class ICDCode(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=10, default="")
     description = models.CharField(max_length=100, default="")
     type = models.CharField(max_length=2, default="")

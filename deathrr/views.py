@@ -5,7 +5,7 @@ from django.shortcuts import render
 import datetime
 from django.utils import timezone
 from .models import DeceasedEntry, DeceasedCodes, ICDCode
-from .forms import DeceasedEntryForm, NewCodeForm
+from .forms import DeceasedEntryForm, NewCodeForm, NewICDCodeForm
 from django.shortcuts import redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.db import connections, connection
@@ -325,6 +325,7 @@ def create_deceased_report(request):
 @login_required(login_url="/users/login")
 def update_deceased_report(request, pk, return_screen):
     r_screen = 1 if return_screen == "True" else 0
+    icd_form = NewICDCodeForm()
     report = DeceasedEntry.objects.get(id=pk)
     modified_by = request.user.username
     form = DeceasedEntryForm(instance=report)
@@ -338,7 +339,7 @@ def update_deceased_report(request, pk, return_screen):
     else:
         form = DeceasedEntryForm(instance=report)
 
-    return render(request, 'deathrr/update_deceased_report.html', {'form': form, 'pk': pk, 'return_screen': r_screen})
+    return render(request, 'deathrr/update_deceased_report.html', {'form': form, 'icd_form': icd_form, 'pk': pk, 'return_screen': r_screen})
 
 
 @login_required(login_url="/users/login")
@@ -432,30 +433,61 @@ def delete_deceased_code(request, d_pk, c_pk):
 
 @login_required(login_url="/users/login")
 def find_and_add_icd_code(request):
-    icd_code = request.GET.get('code_text')
+    # icd_code = request.GET.get('code_text')
+    #
+    # code_ien = -1
+    # potential_entry = ICDCode.objects.filter(code=icd_code)
+    # if not potential_entry.exists():
+    #     # with connections['RPMS'].cursor() as cursor:
+    #     #     query = f"SELECT * FROM IHS.BVS_MORTALITY_ICD10 WHERE CODE='{icd_code}'"
+    #     #     cursor.execute(query)
+    #     #     print("thelre")
+    #     #     row = cursor.fetchone()
+    #     #     if row:
+    #     #         ICDCode.objects.create(id=row.ien ,code=row.code, description=row.description, type='C')
+    #     #         code_ien = ICDCode.objects.get(id=row.ien)
+    #     connection = connections['RPMS']
+    #
+    #     with connection.cursor() as cursor:
+    #         #cursor.execute('USE RPMS')
+    #         query = f"SELECT * FROM IHS.BVS_MORTALITY_ICD10 WHERE CODE='{icd_code}'"
+    #         cursor.execute(query)
+    #         print("HEre", query)
+    #         result = cursor.fetchall()
+    #         print(result)
+    #
+    # else:
+    #     code_ien = ICDCode.objects.filter(code=icd_code)[0].id
+    # print(code_ien)
+    return HttpResponse("Hello")
 
-    code_ien = -1
-    potential_entry = ICDCode.objects.filter(code=icd_code)
-    if not potential_entry.exists():
-        # with connections['RPMS'].cursor() as cursor:
-        #     query = f"SELECT * FROM IHS.BVS_MORTALITY_ICD10 WHERE CODE='{icd_code}'"
-        #     cursor.execute(query)
-        #     print("thelre")
-        #     row = cursor.fetchone()
-        #     if row:
-        #         ICDCode.objects.create(id=row.ien ,code=row.code, description=row.description, type='C')
-        #         code_ien = ICDCode.objects.get(id=row.ien)
-        with connection.cursor() as cursor:
-            cursor.execute('USE rpms')
-            query = f"SELECT * FROM IHS.BVS_MORTALITY_ICD10 WHERE CODE='{icd_code}'"
-            cursor.execute(query)
-            result = cursor.fetchone()
 
+def add_icd_code_view(request, pk=None, return_screen=None):
+    existing_codes = list(ICDCode.objects.all().order_by('code').values_list('code', 'description', 'type'))
+    existing_codes = [{'code': item[0], 'description': item[1], 'type':item[2]} for item in existing_codes]
+
+    message = None
+    error = None
+    from_report = False
+    r_screen = 0
+    if pk != 0:
+        from_report = True
+        r_screen = "True" if return_screen == "1" else "False"
+    if request.method == "POST":
+        form = NewICDCodeForm(request.POST)
+        if form.is_valid():
+            already_exists = ICDCode.objects.filter(code=form.cleaned_data['code']).exists()
+            if already_exists:
+                error = "Code already exists"
+            else:
+                ICDCode.objects.create(code=form.cleaned_data['code'], description=form.cleaned_data['description'],
+                                       type="C")
+                message = "Code added successfully"
+
+            form = NewICDCodeForm()
     else:
-        code_ien = ICDCode.objects.filter(code=icd_code)[0].id
-
-    return JsonResponse({'code_ien': code_ien})
-
+        form = NewICDCodeForm()
+    return render(request, 'deathrr/add_new_icd_code.html', {'form': form, 'pk': pk, 'return_screen': r_screen, 'from_report': from_report, 'message': message, 'error': error, 'existing_codes': existing_codes})
 
 @login_required(login_url="/users/login")
 def download_count_reports(request):

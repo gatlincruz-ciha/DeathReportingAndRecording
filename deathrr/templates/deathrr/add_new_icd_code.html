@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}
+View Report
+{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <h2>New IDC10 Code Entry</h2>
+    <p>The existing list of codes are only codes that have been used in previous reports. Codes that have not been used before can be entered below.</p>
+        <form method="post" action="{% url 'deathrr:add_icd_code_view' pk return_screen %}">
+            {% csrf_token %}
+            <div class="row ">
+                <div class="col-md-1" style="margin-left:250px;">
+                    {{form.code|as_crispy_field}}
+                </div>
+                <div class="col-md-5" style="margin-left: 50px;">
+                    {{form.description|as_crispy_field}}
+                </div>
+                <div class="col-md-1" style="margin-top:30px;">
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </form>
+    {% if error %}
+        <p class="text-center" style="color:red;">{{error}}</p>
+        {% endif %}
+        {% if message %}
+        <p class="text-center" style="color:green;">{{message}}</p>
+    {% endif %}
+    <h5 class="mt-5 mb-2">Existing Codes</h5>
+     <div style = "height:400px; overflow-y:scroll;">
+    <table class="table ml-4 mr-4 mt-4" style="background-color:white;">
+            <thead class="sticky-top bg-light">
+                <tr>
+                    <th scope="col">Code</th>
+                    <th scope="col">Description</th>
+
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for code in existing_codes %}
+                <tr>
+                    <th scope="row">{{code.code}}</th>
+                    <td>{{code.description}}</td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+     </div>
+
+        {% if from_report %}
+        <div class="text-center mt-5">
+            <form method="GET" action="{% url 'deathrr:update_deceased_report' pk return_screen %}"><button class="btn btn-primary" type="submit">Back to Report</button></form>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

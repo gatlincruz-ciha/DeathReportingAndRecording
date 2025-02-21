@@ -2,8 +2,8 @@
 {% load static %}
 <div id="divid">
     <div style="height:300px; overflow-y:scroll;">
-<table class="table table-hover mx-auto mt-5"  id="codes_table" style="width:60%; ">
-    <thead>
+<table class="table table-hover mx-auto mt-5" style="background-color:white; width:60%;" id="codes_table" >
+    <thead class="sticky-top bg-light">
     <tr>
         <th scope="col">Code</th>
         <th scope="col">Description</th>
@@ -37,18 +37,18 @@
 <form method="post" id="add-code-form">
     <div class="d-flex flex-row" style="margin-left:20%">
         <div class="p-2">{{new_code_form.code_id|as_crispy_field}}</div>
-        <div class="p-5">{{new_code_form.is_primary|as_crispy_field}}</div>
-        <div class="p-5 mb-5"><button class="btn btn-success" type="submit" form="add-code-form" name="add_codes_btn" hx-trigger="click" hx-post="{% url 'deathrr:add_code' pk %}" hx-target="#codes_list">Add</button></div>
+        <div class="p-5" style="margin-top:3px;">{{new_code_form.is_primary|as_crispy_field}}</div>
+        <div class="p-5 mb-5" style="margin-right:40px;"><button class="btn btn-success" type="submit" form="add-code-form" name="add_codes_btn" hx-trigger="click" hx-post="{% url 'deathrr:add_code' pk %}" hx-target="#codes_list">Add</button></div>
     </div>
 </form>
 
-    <div class="mt-4 mb-4">
-            <label id="invalid_code_lable" style="color:red;" hidden>Invalid Code Entered.</label>
-            <label for="code_text" >Enter code manually:</label>
-<!--            <input id="code_text" value="{{ filter_text }}" name="code_text" hx-trigger="blur" hx-get="{% url 'deathrr:find_and_add_code' %}" hx-on="htmx:afterRequest: handleResponse">-->
-            <input id="code_text" value="{{ filter_text }}" name="code_text">
+<!--    <div class="mt-4 mb-4">-->
+<!--            <label id="invalid_code_lable" style="color:red;" hidden>Invalid Code Entered.</label>-->
+<!--            <label for="code_text" >Enter code manually:</label>-->
+<!--&lt;!&ndash;            <input id="code_text" value="{{ filter_text }}" name="code_text" hx-trigger="blur" hx-get="{% url 'deathrr:find_and_add_code' %}" hx-on="htmx:afterRequest: handleResponse">&ndash;&gt;-->
+<!--            <input id="code_text" value="{{ filter_text }}" name="code_text">-->
 
-    </div>
+<!--    </div>-->
     <script>
         document.getElementById("code_text").addEventListener("blur", function() {
             const enteredCode = document.getElementById("code_text").value;
