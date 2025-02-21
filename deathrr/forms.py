@@ -210,6 +210,9 @@ class NewCodeForm(forms.ModelForm):
         fields = ('code_id', 'is_primary')
         labels = {'code_id': 'ICD Code:', 'is_primary': 'Is Primary Cause of Death?'}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['code_id'].queryset = ICDCode.objects.all().order_by('code')
 
 class NewICDCodeForm(forms.ModelForm):
     class Meta:
